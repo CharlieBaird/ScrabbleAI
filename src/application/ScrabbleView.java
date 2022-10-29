@@ -10,25 +10,45 @@ public class ScrabbleView extends BorderPane
 {
 	ScrabbleBoard scrabbleBoard;
 	Board board;
+	Player bot;
 	
-	public ScrabbleView(Board board)
+	public ScrabbleView()
 	{
-		this.board = board;
+		board = initGame();
 		
 		scrabbleBoard = new ScrabbleBoard(board);
 		scrabbleBoard.setMinSize(705, 705);
 		this.setCenter(scrabbleBoard);
 		
-		TileBag bag = new TileBag();
-		Player player = new Player(7, bag, board);
-		
 		Button nextMoveButton = new Button("Next move");
 		nextMoveButton.setOnAction((event) -> {
-		  player.playBestPlay();
-		  update();
+			bot.playBestPlay();
+			update();
 		});
 		
 		this.setBottom(nextMoveButton);
+		
+		Button newGameButton = new Button("Reset game");
+		newGameButton.setOnAction((event) -> {
+			board = initGame();
+			scrabbleBoard = new ScrabbleBoard(board);
+			scrabbleBoard.setMinSize(705, 705);
+			this.setCenter(scrabbleBoard);
+			update();
+		});
+		
+		this.setLeft(newGameButton);
+	}
+	
+	public Board initGame()
+	{
+		Board board = new Board();
+		board.setDefaultWords();
+		
+		TileBag bag = new TileBag();
+		bot = new Player(7, bag, board);
+		
+		return board;
 	}
 	
 	public void update()

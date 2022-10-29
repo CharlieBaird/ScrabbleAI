@@ -18,12 +18,10 @@ public class Main extends Application {
 			primaryStage.setScene(scene);
 			primaryStage.show();
 			
-			Board board = new Board();
-			ScrabbleView view = new ScrabbleView(board);
+			ScrabbleView view = new ScrabbleView();
 			
 			root.getChildren().add(view);
 			
-			board.setDefaultWords();
 			view.update();
 			
 		} catch(Exception e) {
