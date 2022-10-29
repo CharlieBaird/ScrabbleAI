@@ -79,5 +79,10 @@ public class Player {
         System.out.println(play);
         System.out.println("New hand: " + Arrays.toString(hand));
     }
+    
+    public Character[] getHand()
+    {
+    	return this.hand;
+    }
 
 }

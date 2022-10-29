@@ -22,8 +22,6 @@ public class Main extends Application {
 			
 			root.getChildren().add(view);
 			
-			view.update();
-			
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
