@@ -22,6 +22,7 @@ public class Hand extends HBox
 		this.setSpacing(5);
 	}
 	
+	// TODO add each tile's points in the top right of the tile
 	public void update()
 	{
 		this.getChildren().clear();
@@ -34,12 +35,8 @@ public class Hand extends HBox
 			pane.setMinSize(40, 40);
 			pane.setMaxSize(40, 40);
 			pane.setOpacity(0.7);
-//			pane.setStyle(
-//					"-fx-background-color: #E79C64;"
-//			);
 			
-			pane.setStyle(
-//                    "-fx-border-style: solid inside;" + 
+			pane.setStyle( 
                     "-fx-border-width: 20px;" +
                     "-fx-border-radius: 5px;" + 
                     "-fx-border-color: #E79C64;");

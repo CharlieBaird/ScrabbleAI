@@ -62,19 +62,19 @@ class ScrabbleTile extends Pane
 		switch (tile.getBonus())
 		{
 			case DOUBLE_LETTER:
-				this.setStyle("-fx-background-color: #C8DCDE;");
+				this.setStyle(getStyleString("#C8DCDE"));
 				bonusLabel = "DOUBLE LETTER SCORE";
 				break;
 			case DOUBLE_WORD:
-				this.setStyle("-fx-background-color: #FFB5A7;");
+				this.setStyle(getStyleString("#FFB5A7"));
 				bonusLabel = "DOUBLE WORD SCORE";
 				break;
 			case TRIPLE_LETTER:
-				this.setStyle("-fx-background-color: #419BAE;");
+				this.setStyle(getStyleString("#419BAE"));
 				bonusLabel = "TRIPLE LETTER SCORE";
 				break;
 			case TRIPLE_WORD:
-				this.setStyle("-fx-background-color: #FE6550;");
+				this.setStyle(getStyleString("#FE6550"));
 				bonusLabel = "TRIPLE WORD SCORE";
 				break;
 			default:
@@ -92,10 +92,18 @@ class ScrabbleTile extends Pane
 		
 		this.getChildren().add(label);
 	}
+	
+	private String getStyleString(String backgroundColor)
+	{
+		return "-fx-border-width: 24px;" +
+                "-fx-border-radius: 5px;" + 
+                "-fx-border-color: " + backgroundColor + ";";
+	}
 
 	public void update(Tile tile)
 	{
-		this.setStyle("-fx-background-color: #E79C64;");
+		this.setStyle(getStyleString("#E79C64"));
+		
 		label.setText(String.valueOf(tile.getValue()));
 		label.setFont(new Font("Arial", 26));
 		label.setTextAlignment(TextAlignment.CENTER);
