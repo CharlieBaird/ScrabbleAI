@@ -1,6 +1,5 @@
 package application.Logic;
 
-import java.lang.reflect.Array;
 import java.util.*;
 
 public class Board {
@@ -96,7 +95,12 @@ public class Board {
     public Tile[][] getBoard() {
         return board;
     }
-
+    
+    public ArrayList<Word> getCurrentWords()
+    {
+    	return this.currentWords;
+    }
+    
     public void setBoard(Tile[][] board) {
         this.board = board;
     }
@@ -174,7 +178,6 @@ public class Board {
                         // Quickly check character to the right for a 1 letterer
                         if (!(j != 14 && matrix[i][j + 1].getValue() == '_')) {
                             StringBuilder builtWord = new StringBuilder();
-                            boolean isAffectedWord = false;
                             for (int k = j; k < 15; k++) {
                                 char value = matrix[i][k].getValue();
                                 if (value != '_') {
@@ -191,7 +194,7 @@ public class Board {
                                     return null;
                                 }
 
-                                allWords.add(new Word(i, j, false, built, isAffectedWord));
+                                allWords.add(new Word(i, j, false, built));
                             }
                         }
                     }
@@ -202,7 +205,6 @@ public class Board {
                         // Quickly check character below for a 1 letterer
                         if (!(i != 14 && matrix[i + 1][j].getValue() == '_')) {
                             StringBuilder builtWord = new StringBuilder();
-                            boolean isAffectedWord = false;
                             for (int k = i; k < 15; k++) {
                                 char value = matrix[k][j].getValue();
                                 if (value != '_') {
@@ -219,7 +221,7 @@ public class Board {
                                     return null;
                                 }
 
-                                allWords.add(new Word(i, j, true, built, isAffectedWord));
+                                allWords.add(new Word(i, j, true, built));
                             }
                         }
                     }
@@ -260,6 +262,57 @@ public class Board {
             }
             System.out.println();
         }
+    }
+    
+    public ArrayList<Play> getFirstPlays(Character[] chars)
+    {
+        StringBuilder builder = new StringBuilder();
+        for (Character c : chars)
+        {
+            if (c != null)
+                builder.append(c);
+        }
+        String letters = builder.toString();
+
+        // Complete brute force.
+        handler = new WordHandler();
+
+        ArrayList<Possibility> possibilities = handler.getAllPossibilities(letters, currentWords);
+
+        return parseFirstPlays(possibilities);
+    }
+    
+    // Returns all possible first plays that contain the tile (7,7)
+    private ArrayList<Play> parseFirstPlays(ArrayList<Possibility> possibilities)
+    {
+    	ArrayList<Play> allPlays = new ArrayList<>();
+    	
+    	// All requiredPhrase components of possibilities are null.
+    	for (Possibility p : possibilities)
+    	{
+    		String word = p.word;
+    		
+    		int row = 7;
+    		// Min : Column 8-length so (7,7) is contained
+    		// Max : Column 7 so (7,7) is contained in the word
+    		for (int col = 8 - word.length(); col < 8; col++)
+    		{
+    			// Compute points
+    			ArrayList<Word> newWords = new ArrayList<>();
+    			newWords.add(new Word(row, col, false, word));
+    			int points = computePoints(board, newWords);
+    			
+    			Play play = new Play(word, row, col, false, points);
+    			allPlays.add(play);
+    		}
+    	}
+    	
+    	// Get rid of duplicates.
+        Set<Play> set = new TreeSet<>(allPlays);
+        ArrayList<Play> plays = new ArrayList<>(set);
+        Collections.reverse(plays);
+    	
+    	return plays;
     }
 
     public ArrayList<Play> getPlays(Character[] chars)

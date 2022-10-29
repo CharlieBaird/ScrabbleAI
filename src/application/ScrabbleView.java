@@ -64,7 +64,7 @@ public class ScrabbleView extends BorderPane
 	public Board initGame()
 	{
 		Board board = new Board();
-		board.setDefaultWords();
+//		board.setDefaultWords();
 		
 		TileBag bag = new TileBag();
 		bot = new Player(7, bag, board);

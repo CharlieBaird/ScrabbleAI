@@ -38,12 +38,24 @@ public class Player {
 
     public boolean playBestPlay()
     {
-        // Get play
-        ArrayList<Play> plays = board.getPlays(hand);
+    	ArrayList<Play> plays;
+    	
+    	// If board is empty, simply play best word.
+    	if (board.getCurrentWords().isEmpty())
+    	{
+    		// Get best first play
+            plays = board.getFirstPlays(hand);
+    	}
+    	
+    	else
+    	{
+    		// Get best overall play
+            plays = board.getPlays(hand);
+    	}
+    	
+    	if (plays == null || plays.isEmpty()) return false;
 
-        if (plays.isEmpty()) return false;
-
-        Play play = plays.get(0);
+    	Play play = plays.get(0);
 
         // Play play
         play(play);

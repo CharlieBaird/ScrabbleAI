@@ -8,12 +8,11 @@ public class Word
     String word;
     boolean isAffected;
 
-    public Word(int x, int y, boolean isVertical, String word, boolean isAffected) {
+    public Word(int x, int y, boolean isVertical, String word) {
         this.x = x;
         this.y = y;
         this.isVertical = isVertical;
         this.word = word;
-        this.isAffected = isAffected;
     }
 
     @Override
