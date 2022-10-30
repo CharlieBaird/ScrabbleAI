@@ -1,6 +1,7 @@
 package application;
 
 import application.Logic.Board;
+import application.Logic.ScrabblePointsComparator;
 import application.Logic.Tile;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
@@ -19,12 +20,13 @@ public class ScrabbleBoard extends GridPane
 	{
 		this.setStyle("-fx-background-color: #DDDDDD;");
 		tiles = new ScrabbleTile[15][15];
+		ScrabblePointsComparator comparator = new ScrabblePointsComparator();
 		
 		for (int i=0; i<15; i++)
 		{
 			for (int j=0; j<15; j++)
 			{
-				ScrabbleTile tile = new ScrabbleTile(board.getBoard()[i][j]);
+				ScrabbleTile tile = new ScrabbleTile(board.getBoard()[i][j], comparator);
 				tiles[i][j] = tile;
 				this.add(tile, j, i);
 			}
@@ -52,9 +54,12 @@ class ScrabbleTile extends Pane
 	public char containedChar;
 	public String bonusLabel;
 	Label label;
+	Label pointsLabel;
+	ScrabblePointsComparator comparator;
 	
-	public ScrabbleTile(Tile tile)
+	public ScrabbleTile(Tile tile, ScrabblePointsComparator comparator)
 	{
+		this.comparator = comparator;
 		containedChar = '_';
 		this.setOpacity(0.7);
 		bonusLabel = "";
@@ -90,7 +95,10 @@ class ScrabbleTile extends Pane
 		label.layoutYProperty().bind(this.heightProperty().subtract(label.heightProperty()).divide(2));
 		label.setTextAlignment(TextAlignment.CENTER);
 		
+		pointsLabel = new Label();
+		
 		this.getChildren().add(label);
+		this.getChildren().add(pointsLabel);
 	}
 	
 	private String getStyleString(String backgroundColor)
@@ -109,5 +117,11 @@ class ScrabbleTile extends Pane
 		label.setTextAlignment(TextAlignment.CENTER);
 		label.layoutXProperty().bind(this.widthProperty().subtract(label.widthProperty()).divide(2));
 		label.layoutYProperty().bind(this.heightProperty().subtract(label.heightProperty()).divide(2));
+		
+		int points = comparator.map.getOrDefault((char) ((int) tile.getValue() + 32), 0);
+		pointsLabel.setText(String.valueOf(points));
+		pointsLabel.setFont(new Font("Arial", 12));
+		pointsLabel.setTextAlignment(TextAlignment.RIGHT);
+		pointsLabel.setTranslateX(points == 10 ? 30 : 36);
 	}
 }

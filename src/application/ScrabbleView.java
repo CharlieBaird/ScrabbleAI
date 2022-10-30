@@ -23,7 +23,7 @@ public class ScrabbleView extends BorderPane
 	
 	public ScrabbleView()
 	{
-		board = initGame();
+		board = initGame(true);
 		
 		// Build center vBox
 		this.setCenter(builderCenterPanel());
@@ -38,7 +38,7 @@ public class ScrabbleView extends BorderPane
 		
 		Button newGameButton = new Button("Reset game");
 		newGameButton.setOnAction((event) -> {
-			board = initGame();
+			initGame(false);
 			this.setCenter(builderCenterPanel());
 			update();
 		});
@@ -72,16 +72,19 @@ public class ScrabbleView extends BorderPane
 		playerHand.update();
 	}
 	
-	public Board initGame()
+	public Board initGame(boolean firstGame)
 	{
-		boolean userGoesFirst = userGoesFirst();
-		System.out.println(userGoesFirst);
-		
 		Board board = new Board();
 		
 		TileBag bag = new TileBag();
 		bot = new Player(7, bag, board);
 		player = new Player(7, bag, board);
+		
+		boolean userGoesFirst = userGoesFirst();
+		if (!userGoesFirst)
+		{
+			bot.playBestPlay();
+		}
 		
 		return board;
 	}
