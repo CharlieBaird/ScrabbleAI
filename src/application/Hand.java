@@ -8,7 +8,6 @@ import application.Logic.ScrabblePointsComparator;
 import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
-import javafx.scene.Group;
 import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
@@ -32,7 +31,6 @@ public class Hand extends HBox
 		this.setSpacing(5);
 	}
 	
-	// TODO add each tile's points in the top right of the tile
 	public void update()
 	{
 		this.getChildren().clear();

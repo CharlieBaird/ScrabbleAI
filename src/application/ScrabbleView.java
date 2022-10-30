@@ -74,6 +74,21 @@ public class ScrabbleView extends BorderPane
 	{
 		VBox rightPane = new VBox();
 		
+		Button submitWordButton = new Button("Submit word");
+		submitWordButton.setOnAction((event) -> {
+			
+		});
+		
+		Button resetWordButton = new Button("Reset word");
+		resetWordButton.setOnAction((event) -> {
+			scrabbleBoard.resetCurrentMove();
+			update();
+		});
+		
+		rightPane.getChildren().add(submitWordButton);
+		rightPane.getChildren().add(resetWordButton);
+		
+		
 		return rightPane;
 	}
 	
