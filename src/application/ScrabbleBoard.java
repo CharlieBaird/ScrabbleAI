@@ -1,5 +1,6 @@
 package application;
 
+import java.awt.Point;
 import java.util.ArrayList;
 
 import application.Logic.Board;
@@ -69,21 +70,37 @@ public class ScrabbleBoard extends GridPane
             });
 	}
 	
-	public boolean tryPlayTile(Hand hand, TileInHand tile)
+	public boolean tryPlayTile(ArrayList<Point> possiblePoints, Hand hand, TileInHand tile)
 	{
-		if (hoveredTile != null && hoveredTile.child.containedChar == '_')
+		for (int i=0; i<15; i++)
 		{
+			for (int j=0; j<15; j++)
+			{
+				tiles[i][j].resetBorder();
+			}
+		}
+		
+		if (hoveredTile != null && possiblePoints != null && hoveredTile.child.containedChar == '_')
+		{
+			// Only empty if can be played anywhere
+			if (!possiblePoints.isEmpty())
+			{
+				// Check if location of hovered tile is valid
+				boolean valid = false;
+				for (Point p : possiblePoints)
+				{
+					if (p.x == hoveredTile.child.x && p.y == hoveredTile.child.y)
+					{
+						valid = true;
+					}
+				}
+				
+				if (!valid) return false;
+			}
+			
 			// Put tile on board
 			hoveredTile.child.update(new Tile(tile.getChar(), Bonus.NONE));
 			inProgressTiles.add(hoveredTile);
-			
-			for (int i=0; i<15; i++)
-			{
-				for (int j=0; j<15; j++)
-				{
-					tiles[i][j].resetBorder();
-				}
-			}
 			
 			return true;
 		}
@@ -91,10 +108,18 @@ public class ScrabbleBoard extends GridPane
 		return false;
 	}
 	
-	public void paintPossibleTiles()
+	public ArrayList<Point> paintPossibleTiles()
 	{
 		// If length is 0, just return.
-		if (inProgressTiles.isEmpty()) return;
+		if (inProgressTiles.isEmpty()) return new ArrayList<>();
+		
+		// Create list of possible points
+		ArrayList<Point> possiblePoints = new ArrayList<>();
+		
+		Point up = null;
+		Point right = null;
+		Point down = null;
+		Point left = null;
 		
 		// If length is 1, could either be left or right
 		if (inProgressTiles.size() == 1)
@@ -103,36 +128,64 @@ public class ScrabbleBoard extends GridPane
 			int y = inProgressTiles.get(0).child.y;
 			
 			// Paint up
-			paintPossible(x-1, y, 0);
+			up = paintPossible(x-1, y, 0);
 			
 			// Paint right
-			paintPossible(x, y+1, 1);
+			right = paintPossible(x, y+1, 1);
 			
 			// Paint down
-			paintPossible(x+1, y, 2);
+			down = paintPossible(x+1, y, 2);
 			
 			// Paint left
-			paintPossible(x, y-1, 3);
+			left = paintPossible(x, y-1, 3);
 		}
 		
 		// If length is more than 1, than must be horizontal or vertical
 		else
 		{
+			boolean isVertical = inProgressTiles.get(0).child.y - inProgressTiles.get(1).child.y == 0;
 			
+			int x = inProgressTiles.get(0).child.x;
+			int y = inProgressTiles.get(0).child.y;
+			
+			if (isVertical)
+			{
+				// Paint up
+				up = paintPossible(x-1, y, 0);
+				
+				// Paint down
+				down = paintPossible(x+1, y, 2);
+			}
+			
+			else
+			{
+				// Paint right
+				right = paintPossible(x, y+1, 1);
+				
+				// Paint left
+				left = paintPossible(x, y-1, 3);
+			}
 		}
 		
+		if (up != null) possiblePoints.add(up);
+		if (down != null) possiblePoints.add(down);
+		if (right != null) possiblePoints.add(right);
+		if (left != null) possiblePoints.add(left);
+		
+		return possiblePoints;
 	}
 	
-	private void paintPossible(int x, int y, int direction)
+	private Point paintPossible(int x, int y, int direction)
 	{
 		// Check bounds
-		if (x < 0 || x > 14 || y < 0 || y > 14) return;
+		if (x < 0 || x > 14 || y < 0 || y > 14) return null;
 		
 		// Check if tile already there
 		ScrabbleTileParent tile = tiles[x][y];
 		if (tile.child.containedChar == '_')
 		{
 			tile.setHighlightedBorder();
+			return new Point(x,y);
 		}
 		
 		// If tile already there, loop recursively until either
@@ -142,19 +195,17 @@ public class ScrabbleBoard extends GridPane
 			switch (direction)
 			{
 				case 0:
-					paintPossible(x-1, y, 0);
-					break;
+					return paintPossible(x-1, y, 0);
 				case 1:
-					paintPossible(x, y+1, 1);
-					break;
+					return paintPossible(x, y+1, 1);
 				case 2:
-					paintPossible(x+1, y, 2);
-					break;
+					return paintPossible(x+1, y, 2);
 				case 3:
-					paintPossible(x, y-1, 3);
-					break;
+					return paintPossible(x, y-1, 3);
 			}
 		}
+		
+		return null;
 	}
 	
 	public void update(Board board)

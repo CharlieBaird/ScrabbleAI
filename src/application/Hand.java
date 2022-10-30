@@ -1,5 +1,8 @@
 package application;
 
+import java.awt.Point;
+import java.util.ArrayList;
+
 import application.Logic.Player;
 import application.Logic.ScrabblePointsComparator;
 import javafx.application.Platform;
@@ -53,6 +56,8 @@ class TileInHand extends Pane
 	private Hand hand;
 	private char character;
 	
+	private ArrayList<Point> possiblePoints;
+	
 	public TileInHand(ScrabbleBoard scrabbleBoard, Hand hand, Character c, int points)
 	{
 		this.scrabbleBoard = scrabbleBoard;
@@ -85,8 +90,7 @@ class TileInHand extends Pane
                 public void handle(final MouseEvent mouseEvent)
                 {
                 	// Paint possible tiles for this tile to go on
-                	if (scrabbleBoard == null) System.out.println("null");
-            		scrabbleBoard.paintPossibleTiles();
+                	possiblePoints = scrabbleBoard.paintPossibleTiles();
             		selectedStyle();
                 }
             });
@@ -121,7 +125,7 @@ class TileInHand extends Pane
 	private void play()
 	{
 		// If returns true, successfully played tile
-		if (scrabbleBoard.tryPlayTile(hand, this))
+		if (scrabbleBoard.tryPlayTile(possiblePoints, hand, this))
 		{
 			hand.getChildren().remove(this);
 		}
