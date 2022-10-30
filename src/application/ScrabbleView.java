@@ -22,7 +22,7 @@ public class ScrabbleView extends BorderPane
 	private Hand botHand;
 	private Hand playerHand;
 	
-	Boolean isPlayersTurn = false;
+	boolean isPlayersTurn = false;
 	
 	public ScrabbleView()
 	{
@@ -57,7 +57,7 @@ public class ScrabbleView extends BorderPane
 	{
 		VBox centerPane = new VBox();
 		
-		scrabbleBoard = new ScrabbleBoard(board, isPlayersTurn);
+		scrabbleBoard = new ScrabbleBoard(this, board);
 		scrabbleBoard.setMinSize(705, 705);
 		
 		botHand = new Hand(scrabbleBoard, bot);
@@ -89,7 +89,6 @@ public class ScrabbleView extends BorderPane
 			else
 			{
 				isPlayersTurn = false;
-				System.out.println(points);
 				update();
 			}
 		});
@@ -120,6 +119,13 @@ public class ScrabbleView extends BorderPane
 		scrabbleBoard.update(board);
 		botHand.update();
 		playerHand.update();
+		
+		if (!isPlayersTurn)
+		{
+			bot.playBestPlay();
+			isPlayersTurn = true;
+			update();
+		}
 	}
 	
 	public Board initGame()

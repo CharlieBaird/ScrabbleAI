@@ -25,6 +25,7 @@ import javafx.scene.text.TextAlignment;
 
 public class ScrabbleBoard extends GridPane
 {
+	private ScrabbleView view;
 	
 	ScrabbleTileParent[][] tiles;
 	
@@ -34,14 +35,12 @@ public class ScrabbleBoard extends GridPane
 	
 	private Board board;
 	
-	private Boolean isPlayersTurn;
-	
-	public ScrabbleBoard(Board board, Boolean isPlayersTurn)
+	public ScrabbleBoard(ScrabbleView view, Board board)
 	{
+		this.view = view;
 		this.inProgressTiles = new ArrayList<>();
 		this.board = board;
 		this.tiles = new ScrabbleTileParent[15][15];
-		this.isPlayersTurn = isPlayersTurn;
 		
 		this.setStyle("-fx-background-color: #DDDDDD;");
 		ScrabblePointsComparator comparator = new ScrabblePointsComparator();
@@ -146,7 +145,7 @@ public class ScrabbleBoard extends GridPane
         hoveredTile = null;
         inProgressTiles.clear();
         
-        isPlayersTurn = false;
+        view.isPlayersTurn = false;
         
         return points;
 	}
@@ -172,7 +171,7 @@ public class ScrabbleBoard extends GridPane
 	
 	public boolean tryPlayTile(ArrayList<Point> possiblePoints, Hand hand, TileInHand tile)
 	{
-		if (!isPlayersTurn) return false;
+		if (!view.isPlayersTurn) return false;
 		
 		for (int i=0; i<15; i++)
 		{
@@ -212,7 +211,7 @@ public class ScrabbleBoard extends GridPane
 	
 	public ArrayList<Point> paintPossibleTiles()
 	{
-		if (!isPlayersTurn) return new ArrayList<>();
+		if (!view.isPlayersTurn) return new ArrayList<>();
 		
 		// If length is 0, just return.
 		if (inProgressTiles.isEmpty()) return new ArrayList<>();
