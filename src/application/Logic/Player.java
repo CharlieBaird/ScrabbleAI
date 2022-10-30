@@ -9,9 +9,9 @@ public class Player {
     // will be null at the end of game.
     // For example, the player could only have "S" left
     // in index 6.
-    private Character[] hand;
+    public Character[] hand;
 
-    private int points;
+    public int points;
     private TileBag bag;
     private Board board;
 
@@ -25,7 +25,7 @@ public class Player {
 
     // To be called at the start, or when player plays a word on the board.
     // If possible, pulls a new letter out of the bag into the user's hand.
-    private void refreshHand()
+    public void refreshHand()
     {
         for (int i = 0; i < hand.length; i++)
         {
@@ -35,10 +35,10 @@ public class Player {
             }
         }
     }
-
-    public boolean playBestPlay()
+    
+    public Play getBestPlay()
     {
-    	ArrayList<Play> plays;
+		ArrayList<Play> plays;
     	
     	// If board is empty, simply play best word.
     	if (board.getCurrentWords().isEmpty())
@@ -53,12 +53,19 @@ public class Player {
             plays = board.getPlays(hand);
     	}
     	
-    	if (plays == null || plays.isEmpty()) return false;
+    	if (plays == null || plays.isEmpty()) return null;
 
-    	Play play = plays.get(0);
+    	return plays.get(0);
+    }
+
+    public boolean playBestPlay()
+    {
+    	Play bestPlay = getBestPlay();
+    	
+    	if (bestPlay == null) return false;
 
         // Play play
-        play(play);
+        play(bestPlay);
 
         return true;
     }

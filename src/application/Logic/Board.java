@@ -5,7 +5,7 @@ import java.util.*;
 public class Board {
 
     private Tile[][] board;
-    private ArrayList<Word> currentWords;
+    public ArrayList<Word> currentWords;
     private WordHandler handler;
 
     public Board()
@@ -105,25 +105,6 @@ public class Board {
         this.board = board;
     }
 
-    public void setDefaultWords()
-    {
-//        board[7][5].setValue('H');
-//        board[7][6].setValue('A');
-//        board[7][7].setValue('T');
-//        board[7][8].setValue('R');
-//        board[7][9].setValue('E');
-//        board[7][10].setValue('D');
-
-        board[0][0].setValue('C');
-        board[0][1].setValue('O');
-        board[0][2].setValue('U');
-        board[0][3].setValue('R');
-        board[0][4].setValue('T');
-
-        // Get list of all words on the board
-        currentWords = getAllWordsOnBoard(board, false);
-    }
-
     // Puts word on board, returns used characters
     public ArrayList<Character> playWord(Play play)
     {
@@ -163,7 +144,7 @@ public class Board {
         return usedChars;
     }
 
-    private ArrayList<Word> getAllWordsOnBoard(Tile[][] matrix, boolean checkWords)
+    public ArrayList<Word> getAllWordsOnBoard(Tile[][] matrix, boolean checkWords)
     {
         ArrayList<Word> allWords = new ArrayList<>();
 
@@ -576,7 +557,7 @@ public class Board {
     }
 
     // Compare new words to currentWords list
-    private ArrayList<Word> getNewWords(ArrayList<Word> allNewWords)
+    public ArrayList<Word> getNewWords(ArrayList<Word> allNewWords)
     {
         ArrayList<Word> newWords = new ArrayList<>();
 
@@ -602,7 +583,7 @@ public class Board {
     }
 
     // Compute points of a given (already checked) word on a given board
-    private int computePoints(Tile[][] matrix, ArrayList<Word> newWords)
+    public int computePoints(Tile[][] matrix, ArrayList<Word> newWords)
     {
         int total = 0;
 

@@ -2,11 +2,15 @@ package application;
 
 import java.awt.Point;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 
 import application.Logic.Board;
 import application.Logic.Bonus;
+import application.Logic.Player;
 import application.Logic.ScrabblePointsComparator;
 import application.Logic.Tile;
+import application.Logic.Word;
 import javafx.event.EventHandler;
 import javafx.geometry.Bounds;
 import javafx.geometry.Pos;
@@ -30,11 +34,14 @@ public class ScrabbleBoard extends GridPane
 	
 	private Board board;
 	
-	public ScrabbleBoard(Board board)
+	private Boolean isPlayersTurn;
+	
+	public ScrabbleBoard(Board board, Boolean isPlayersTurn)
 	{
 		this.inProgressTiles = new ArrayList<>();
 		this.board = board;
 		this.tiles = new ScrabbleTileParent[15][15];
+		this.isPlayersTurn = isPlayersTurn;
 		
 		this.setStyle("-fx-background-color: #DDDDDD;");
 		ScrabblePointsComparator comparator = new ScrabblePointsComparator();
@@ -73,6 +80,77 @@ public class ScrabbleBoard extends GridPane
             });
 	}
 	
+	// Construct play and then play it
+	public int submitWord(Player player)
+	{
+		if (inProgressTiles.isEmpty()) return 0;
+		
+		// Make board dupe for verification
+        Tile[][] boardDupe = new Tile[15][15];
+        for (int i = 0; i < 15; i++)
+        {
+            for (int j = 0; j < 15; j++)
+            {
+                Tile baseTile = board.getBoard()[i][j];
+                boardDupe[i][j] = new Tile(baseTile.getValue(), baseTile.getBonus());
+            }
+        }
+        
+        for (ScrabbleTileParent tileParent : inProgressTiles)
+        {
+        	ScrabbleTile tile = tileParent.child;
+        	
+        	boardDupe[tile.x][tile.y].setValue(tile.containedChar);
+        }
+        
+        // Get all words on the board. If null, one of the new words in invalid.
+        ArrayList<Word> allNewWords = board.getAllWordsOnBoard(boardDupe, true);
+        if (allNewWords == null) return 0;
+
+        // If reached here, play the word and add points to total
+        ArrayList<Word> newWords = board.getNewWords(allNewWords);
+        
+        // Remove used letters from player's hand
+        for (ScrabbleTileParent tileParent : inProgressTiles)
+        {
+            for (int i = 0; i < player.hand.length; i++)
+            {
+                // Remove first instance
+                if (player.hand[i] != null && player.hand[i] == tileParent.child.containedChar)
+                {
+                	player.hand[i] = null;
+                    break;
+                }
+            }
+        }
+        
+        // Update board
+        for (ScrabbleTileParent tileParent : inProgressTiles)
+        {
+        	ScrabbleTile tile = tileParent.child;
+        	
+        	board.getBoard()[tile.x][tile.y].setValue(tile.containedChar);
+        }
+        
+        board.currentWords = allNewWords;
+        
+        // Add points to player's total
+        int points = board.computePoints(board.getBoard(), newWords);
+        player.points += points;
+
+        player.refreshHand();
+
+        board.displayBoard();
+        
+        // Reset vars
+        hoveredTile = null;
+        inProgressTiles.clear();
+        
+        isPlayersTurn = false;
+        
+        return points;
+	}
+	
 	public void resetCurrentMove()
 	{
 		hoveredTile = null;
@@ -94,6 +172,8 @@ public class ScrabbleBoard extends GridPane
 	
 	public boolean tryPlayTile(ArrayList<Point> possiblePoints, Hand hand, TileInHand tile)
 	{
+		if (!isPlayersTurn) return false;
+		
 		for (int i=0; i<15; i++)
 		{
 			for (int j=0; j<15; j++)
@@ -132,6 +212,8 @@ public class ScrabbleBoard extends GridPane
 	
 	public ArrayList<Point> paintPossibleTiles()
 	{
+		if (!isPlayersTurn) return new ArrayList<>();
+		
 		// If length is 0, just return.
 		if (inProgressTiles.isEmpty()) return new ArrayList<>();
 		
@@ -246,7 +328,7 @@ public class ScrabbleBoard extends GridPane
 	}
 }
 
-class ScrabbleTileParent extends VBox
+class ScrabbleTileParent extends VBox implements Comparable<ScrabbleTileParent>
 {
 	public ScrabbleTile child;
 	
@@ -271,6 +353,19 @@ class ScrabbleTileParent extends VBox
 	{
 		setBorder(new Border(new BorderStroke(Color.TRANSPARENT, 
 	            BorderStrokeStyle.SOLID, new CornerRadii(5), BorderWidths.DEFAULT)));
+	}
+
+	@Override
+	public int compareTo(ScrabbleTileParent arg0) {
+		ScrabbleTile other = arg0.child;
+		
+		// Check horizontal
+		if (child.x == other.x)
+		{
+			return child.x - other.x;
+		}
+		
+		return child.y - other.y;
 	}
 }
 

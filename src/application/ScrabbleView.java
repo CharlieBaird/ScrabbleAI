@@ -1,6 +1,7 @@
 package application;
 
 import application.Logic.Board;
+import application.Logic.Play;
 import application.Logic.Player;
 import application.Logic.TileBag;
 import javafx.scene.control.Alert;
@@ -21,7 +22,7 @@ public class ScrabbleView extends BorderPane
 	private Hand botHand;
 	private Hand playerHand;
 	
-	boolean isPlayersTurn = false;
+	Boolean isPlayersTurn = false;
 	
 	public ScrabbleView()
 	{
@@ -56,7 +57,7 @@ public class ScrabbleView extends BorderPane
 	{
 		VBox centerPane = new VBox();
 		
-		scrabbleBoard = new ScrabbleBoard(board);
+		scrabbleBoard = new ScrabbleBoard(board, isPlayersTurn);
 		scrabbleBoard.setMinSize(705, 705);
 		
 		botHand = new Hand(scrabbleBoard, bot);
@@ -76,18 +77,40 @@ public class ScrabbleView extends BorderPane
 		
 		Button submitWordButton = new Button("Submit word");
 		submitWordButton.setOnAction((event) -> {
+			if (!isPlayersTurn) return;
 			
+			int points = scrabbleBoard.submitWord(player);
+			if (points == 0)
+			{
+				scrabbleBoard.resetCurrentMove();
+				update();
+				
+			}
+			else
+			{
+				isPlayersTurn = false;
+				System.out.println(points);
+				update();
+			}
 		});
 		
 		Button resetWordButton = new Button("Reset word");
 		resetWordButton.setOnAction((event) -> {
+			if (!isPlayersTurn) return;
 			scrabbleBoard.resetCurrentMove();
 			update();
 		});
 		
+		Button giveBestMovesButton = new Button("Find my best move");
+		giveBestMovesButton.setOnAction((event) -> {
+			if (!isPlayersTurn) return;
+			Play play = player.getBestPlay();
+			System.out.println(play);
+		});
+		
 		rightPane.getChildren().add(submitWordButton);
 		rightPane.getChildren().add(resetWordButton);
-		
+		rightPane.getChildren().add(giveBestMovesButton);
 		
 		return rightPane;
 	}
@@ -111,6 +134,7 @@ public class ScrabbleView extends BorderPane
 		if (!isPlayersTurn)
 		{
 			bot.playBestPlay();
+			isPlayersTurn = true;
 		}
 		
 		return board;
