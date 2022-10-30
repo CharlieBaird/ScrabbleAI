@@ -1,5 +1,7 @@
 package application;
 
+import java.util.ArrayList;
+
 import application.Logic.Board;
 import application.Logic.Bonus;
 import application.Logic.ScrabblePointsComparator;
@@ -10,6 +12,7 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 import javafx.scene.paint.CycleMethod;
 import javafx.scene.paint.LinearGradient;
 import javafx.scene.text.Font;
@@ -18,21 +21,25 @@ import javafx.scene.text.TextAlignment;
 public class ScrabbleBoard extends GridPane
 {
 	
-	ScrabbleTile[][] tiles;
+	ScrabbleTileParent[][] tiles;
 	
-	ScrabbleTile hoveredTile;
+	ScrabbleTileParent hoveredTile;
+	
+	ArrayList<ScrabbleTileParent> inProgressTiles;
 	
 	public ScrabbleBoard(Board board)
 	{
+		inProgressTiles = new ArrayList<>();
+		
 		this.setStyle("-fx-background-color: #DDDDDD;");
-		tiles = new ScrabbleTile[15][15];
+		tiles = new ScrabbleTileParent[15][15];
 		ScrabblePointsComparator comparator = new ScrabblePointsComparator();
 		
 		for (int i=0; i<15; i++)
 		{
 			for (int j=0; j<15; j++)
 			{
-				ScrabbleTile tile = new ScrabbleTile(board.getBoard()[i][j], comparator);
+				ScrabbleTileParent tile = new ScrabbleTileParent(board.getBoard()[i][j], comparator, i, j);
 				
 				// Add listener for mouse entered
 				tile.addEventFilter(
@@ -62,11 +69,91 @@ public class ScrabbleBoard extends GridPane
             });
 	}
 	
-	public void tryPlayTile(Hand hand, TileInHand tile)
+	public boolean tryPlayTile(Hand hand, TileInHand tile)
 	{
-		if (hoveredTile != null && hoveredTile.containedChar == '_')
+		if (hoveredTile != null && hoveredTile.child.containedChar == '_')
 		{
-			hoveredTile.update(new Tile(tile.getChar(), Bonus.NONE));
+			// Put tile on board
+			hoveredTile.child.update(new Tile(tile.getChar(), Bonus.NONE));
+			inProgressTiles.add(hoveredTile);
+			
+			for (int i=0; i<15; i++)
+			{
+				for (int j=0; j<15; j++)
+				{
+					tiles[i][j].resetBorder();
+				}
+			}
+			
+			return true;
+		}
+		
+		return false;
+	}
+	
+	public void paintPossibleTiles()
+	{
+		// If length is 0, just return.
+		if (inProgressTiles.isEmpty()) return;
+		
+		// If length is 1, could either be left or right
+		if (inProgressTiles.size() == 1)
+		{
+			int x = inProgressTiles.get(0).child.x;
+			int y = inProgressTiles.get(0).child.y;
+			
+			// Paint up
+			paintPossible(x-1, y, 0);
+			
+			// Paint right
+			paintPossible(x, y+1, 1);
+			
+			// Paint down
+			paintPossible(x+1, y, 2);
+			
+			// Paint left
+			paintPossible(x, y-1, 3);
+		}
+		
+		// If length is more than 1, than must be horizontal or vertical
+		else
+		{
+			
+		}
+		
+	}
+	
+	private void paintPossible(int x, int y, int direction)
+	{
+		// Check bounds
+		if (x < 0 || x > 14 || y < 0 || y > 14) return;
+		
+		// Check if tile already there
+		ScrabbleTileParent tile = tiles[x][y];
+		if (tile.child.containedChar == '_')
+		{
+			tile.setHighlightedBorder();
+		}
+		
+		// If tile already there, loop recursively until either
+		// out of bounds or a tile is placeable
+		else
+		{
+			switch (direction)
+			{
+				case 0:
+					paintPossible(x-1, y, 0);
+					break;
+				case 1:
+					paintPossible(x, y+1, 1);
+					break;
+				case 2:
+					paintPossible(x+1, y, 2);
+					break;
+				case 3:
+					paintPossible(x, y-1, 3);
+					break;
+			}
 		}
 	}
 	
@@ -79,10 +166,38 @@ public class ScrabbleBoard extends GridPane
 			{
 				if (matrix[i][j].getValue() != '_')
 				{
-					tiles[i][j].update(matrix[i][j]);
+					tiles[i][j].child.update(matrix[i][j]);
 				}
 			}
 		}
+	}
+}
+
+class ScrabbleTileParent extends VBox
+{
+	public ScrabbleTile child;
+	
+	public ScrabbleTileParent(Tile tile, ScrabblePointsComparator comparator, int x, int y)
+	{
+		child = new ScrabbleTile(tile, comparator, x, y);
+		this.setMinSize(47, 47);
+		this.setBackground(Background.EMPTY);
+		this.setBorder(new Border(new BorderStroke(Color.TRANSPARENT, 
+	            BorderStrokeStyle.SOLID, new CornerRadii(5), BorderWidths.DEFAULT)));
+		
+		this.getChildren().add(child);
+	}
+	
+	public void setHighlightedBorder()
+	{
+		setBorder(new Border(new BorderStroke(Color.BLACK, 
+	            BorderStrokeStyle.SOLID, new CornerRadii(5), BorderWidths.DEFAULT)));
+	}
+	
+	public void resetBorder()
+	{
+		setBorder(new Border(new BorderStroke(Color.TRANSPARENT, 
+	            BorderStrokeStyle.SOLID, new CornerRadii(5), BorderWidths.DEFAULT)));
 	}
 }
 
@@ -94,12 +209,18 @@ class ScrabbleTile extends Pane
 	Label pointsLabel;
 	ScrabblePointsComparator comparator;
 	
-	public ScrabbleTile(Tile tile, ScrabblePointsComparator comparator)
+	int x;
+	int y;
+	
+	public ScrabbleTile(Tile tile, ScrabblePointsComparator comparator, int x, int y)
 	{
 		this.comparator = comparator;
 		containedChar = '_';
 		this.setOpacity(0.7);
 		bonusLabel = "";
+		
+		this.x = x;
+		this.y = y;
 		
 		switch (tile.getBonus())
 		{
@@ -138,7 +259,7 @@ class ScrabbleTile extends Pane
 		this.getChildren().add(pointsLabel);
 	}
 	
-	private String getStyleString(String backgroundColor)
+	public String getStyleString(String backgroundColor)
 	{
 		return "-fx-border-width: 24px;" +
                 "-fx-border-radius: 5px;" + 

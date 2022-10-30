@@ -28,7 +28,7 @@ public class ScrabbleView extends BorderPane
 		board = initGame();
 		
 		// Build center vBox
-		this.setCenter(builderCenterPanel());
+		this.setCenter(buildCenterPanel());
 		
 		Button nextMoveButton = new Button("Next move");
 		nextMoveButton.setOnAction((event) -> {
@@ -41,16 +41,18 @@ public class ScrabbleView extends BorderPane
 		Button newGameButton = new Button("Reset game");
 		newGameButton.setOnAction((event) -> {
 			board = initGame();
-			this.setCenter(builderCenterPanel());
+			this.setCenter(buildCenterPanel());
 			update();
 		});
 		
 		this.setLeft(newGameButton);
 		
+		this.setRight(buildRightPanel());
+		
 		update();
 	}
 	
-	private VBox builderCenterPanel()
+	private VBox buildCenterPanel()
 	{
 		VBox centerPane = new VBox();
 		
@@ -66,6 +68,13 @@ public class ScrabbleView extends BorderPane
 		centerPane.getChildren().add(playerHand);
 		
 		return centerPane;
+	}
+	
+	private VBox buildRightPanel()
+	{
+		VBox rightPane = new VBox();
+		
+		return rightPane;
 	}
 	
 	private void update()

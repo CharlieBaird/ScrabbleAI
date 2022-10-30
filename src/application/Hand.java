@@ -84,7 +84,10 @@ class TileInHand extends Pane
             new EventHandler<MouseEvent>() {
                 public void handle(final MouseEvent mouseEvent)
                 {
-                	selectedStyle();
+                	// Paint possible tiles for this tile to go on
+                	if (scrabbleBoard == null) System.out.println("null");
+            		scrabbleBoard.paintPossibleTiles();
+            		selectedStyle();
                 }
             });
 		this.addEventFilter(
@@ -117,7 +120,11 @@ class TileInHand extends Pane
 	
 	private void play()
 	{
-		scrabbleBoard.tryPlayTile(hand, this);
+		// If returns true, successfully played tile
+		if (scrabbleBoard.tryPlayTile(hand, this))
+		{
+			hand.getChildren().remove(this);
+		}
 	}
 	
 	private void resetStyle()
