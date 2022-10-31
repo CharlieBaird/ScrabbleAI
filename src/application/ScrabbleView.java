@@ -4,11 +4,17 @@ import application.Logic.Board;
 import application.Logic.Play;
 import application.Logic.Player;
 import application.Logic.TileBag;
+import javafx.geometry.Pos;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.Tooltip;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 
 public class ScrabbleView extends BorderPane
@@ -64,18 +70,10 @@ public class ScrabbleView extends BorderPane
 		centerPane.getChildren().add(botHand);
 		
 		centerPane.getChildren().add(scrabbleBoard);
-
+		
 		playerHand = new Hand(scrabbleBoard, player);
-		centerPane.getChildren().add(playerHand);
 		
-		return centerPane;
-	}
-	
-	private VBox buildRightPanel()
-	{
-		VBox rightPane = new VBox();
-		
-		Button submitWordButton = new Button("Submit word");
+		Button submitWordButton = new Button();
 		submitWordButton.setOnAction((event) -> {
 			if (!isPlayersTurn) return;
 			
@@ -92,13 +90,48 @@ public class ScrabbleView extends BorderPane
 				update();
 			}
 		});
+		Image playImg = new Image("https://cdn-icons-png.flaticon.com/512/109/109197.png");
+		ImageView submitImgView = new ImageView(playImg);
+		submitImgView.setFitHeight(32);
+		submitImgView.setFitWidth(32);
+		submitWordButton.setGraphic(submitImgView);
+		submitWordButton.setTooltip(new Tooltip("Submit current word"));
 		
-		Button resetWordButton = new Button("Reset word");
+		Button resetWordButton = new Button();
 		resetWordButton.setOnAction((event) -> {
 			if (!isPlayersTurn) return;
 			scrabbleBoard.resetCurrentMove();
 			update();
 		});
+		Image resetImg = new Image("https://cdn-icons-png.flaticon.com/512/60/60690.png");
+		ImageView resetImgView = new ImageView(resetImg);
+		resetImgView.setFitHeight(32);
+		resetImgView.setFitWidth(32);
+		resetWordButton.setGraphic(resetImgView);
+		resetWordButton.setTooltip(new Tooltip("Reset current word"));
+		
+		BorderPane bottomBox = new BorderPane();
+		bottomBox.setCenter(playerHand);
+		
+		HBox buttons = new HBox();
+		buttons.setAlignment(Pos.CENTER);
+		buttons.setSpacing(10);
+		buttons.getChildren().add(resetWordButton);
+		buttons.getChildren().add(submitWordButton);
+		bottomBox.setRight(buttons);
+		
+		Pane emptyPane = new Pane();
+		emptyPane.setMinSize(96, 10);
+		bottomBox.setLeft(emptyPane);
+		
+		centerPane.getChildren().add(bottomBox);
+		
+		return centerPane;
+	}
+	
+	private VBox buildRightPanel()
+	{
+		VBox rightPane = new VBox();
 		
 		Button giveBestMovesButton = new Button("Find my best move");
 		giveBestMovesButton.setOnAction((event) -> {
@@ -107,8 +140,6 @@ public class ScrabbleView extends BorderPane
 			System.out.println(play);
 		});
 		
-		rightPane.getChildren().add(submitWordButton);
-		rightPane.getChildren().add(resetWordButton);
 		rightPane.getChildren().add(giveBestMovesButton);
 		
 		return rightPane;
