@@ -10,6 +10,7 @@ public class Board {
 
     public Board()
     {
+        handler = new WordHandler();
         board = new Tile[15][15];
         currentWords = new ArrayList<>();
 
@@ -254,9 +255,6 @@ public class Board {
                 builder.append(c);
         }
         String letters = builder.toString();
-
-        // Complete brute force.
-        handler = new WordHandler();
 
         ArrayList<Possibility> possibilities = handler.getAllPossibilities(letters, currentWords);
 

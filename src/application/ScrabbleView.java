@@ -48,14 +48,18 @@ public class ScrabbleView extends BorderPane
 		});
 		
 		this.setBottom(nextMoveButton);
-		
 		this.setLeft(buildLeftPanel());
+		this.setRight(buildRightPanel());
 		
-		bestMoves = new BestMoves(this, scrabbleBoard, player, playerHand);
-		this.setRight(bestMoves);
-		BorderPane.setMargin(bestMoves, new Insets(30, 30, 30, 30));
 		
 		update();
+	}
+	
+	private Pane buildRightPanel()
+	{
+		bestMoves = new BestMoves(this, scrabbleBoard, player, playerHand);
+		BorderPane.setMargin(bestMoves, new Insets(30, 30, 30, 30));
+		return bestMoves;
 	}
 	
 	private VBox buildLeftPanel()
@@ -63,7 +67,9 @@ public class ScrabbleView extends BorderPane
 		Button newGameButton = new Button("Reset game");
 		newGameButton.setOnAction((event) -> {
 			board = initGame();
+			this.setLeft(buildLeftPanel());
 			this.setCenter(buildCenterPanel());
+			this.setRight(buildRightPanel());
 			update();
 		});
 		
@@ -71,6 +77,8 @@ public class ScrabbleView extends BorderPane
 		scoreboard = new ScoreboardContainer(bot, player);
 		
 		left.getChildren().addAll(newGameButton, scoreboard);
+		
+		left.setSpacing(24);
 		
 		return left;
 	}
