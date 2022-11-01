@@ -2,6 +2,7 @@ package application.Logic;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 
 public class Player {
 
@@ -23,6 +24,25 @@ public class Player {
         bag = tileBag;
         board = matrix;
         refreshHand();
+    }
+    
+    // Puts current letters back into the bag
+    // Resets hand
+    public void trashHand()
+    {
+    	for (int i = 0; i < hand.length; i++)
+        {
+            if (hand[i] != null)
+            {
+            	bag.bag.push(Character.valueOf(hand[i]));
+            	hand[i] = null;
+            }
+        }
+    	
+    	// Since bag is a stack, need to randomize order of it
+    	Collections.shuffle(bag.bag);
+    	
+    	refreshHand();
     }
 
     // To be called at the start, or when player plays a word on the board.

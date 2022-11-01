@@ -36,21 +36,17 @@ public class ScrabbleView extends BorderPane
 	
 	public ScrabbleView()
 	{
+		init();
+	}
+	
+	private void init()
+	{
 		board = initGame();
 		
 		// Build center vBox
 		this.setCenter(buildCenterPanel());
-		
-		Button nextMoveButton = new Button("Next move");
-		nextMoveButton.setOnAction((event) -> {
-			bot.playBestPlay();
-			update();
-		});
-		
-		this.setBottom(nextMoveButton);
 		this.setLeft(buildLeftPanel());
 		this.setRight(buildRightPanel());
-		
 		
 		update();
 	}
@@ -66,11 +62,7 @@ public class ScrabbleView extends BorderPane
 	{
 		Button newGameButton = new Button("Reset game");
 		newGameButton.setOnAction((event) -> {
-			board = initGame();
-			this.setLeft(buildLeftPanel());
-			this.setCenter(buildCenterPanel());
-			this.setRight(buildRightPanel());
-			update();
+			init();
 		});
 		
 		VBox left = new VBox();
@@ -106,7 +98,6 @@ public class ScrabbleView extends BorderPane
 			{
 				scrabbleBoard.resetCurrentMove();
 				update();
-				
 			}
 			else
 			{
@@ -134,18 +125,34 @@ public class ScrabbleView extends BorderPane
 		resetWordButton.setGraphic(resetImgView);
 		resetWordButton.setTooltip(new Tooltip("Reset current word"));
 		
+		Button trashHandButton = new Button();
+		trashHandButton.setOnAction((event) -> {
+			if (!isPlayersTurn) return;
+			player.trashHand();
+			update();
+			isPlayersTurn = false;
+			update();
+		});
+		Image trashImg = new Image("https://cdn-icons-png.flaticon.com/512/1017/1017530.png");
+		ImageView trashImgView = new ImageView(trashImg);
+		trashImgView.setFitHeight(32);
+		trashImgView.setFitWidth(32);
+		trashHandButton.setGraphic(trashImgView);
+		trashHandButton.setTooltip(new Tooltip("Trash current hand, skip turn"));
+		
 		BorderPane bottomBox = new BorderPane();
 		bottomBox.setCenter(playerHand);
 		
 		HBox buttons = new HBox();
 		buttons.setAlignment(Pos.CENTER);
 		buttons.setSpacing(10);
+		buttons.getChildren().add(trashHandButton);
 		buttons.getChildren().add(resetWordButton);
 		buttons.getChildren().add(submitWordButton);
 		bottomBox.setRight(buttons);
 		
 		Pane emptyPane = new Pane();
-		emptyPane.setMinSize(96, 10);
+		emptyPane.setMinSize(170, 10);
 		bottomBox.setLeft(emptyPane);
 		
 		centerPane.getChildren().add(bottomBox);
