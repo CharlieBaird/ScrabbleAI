@@ -30,6 +30,8 @@ public class ScrabbleView extends BorderPane
 	private Hand botHand;
 	public Hand playerHand;
 	
+	public ScoreboardContainer scoreboard;
+	
 	boolean isPlayersTurn = false;
 	
 	public ScrabbleView()
@@ -47,6 +49,17 @@ public class ScrabbleView extends BorderPane
 		
 		this.setBottom(nextMoveButton);
 		
+		this.setLeft(buildLeftPanel());
+		
+		bestMoves = new BestMoves(this, scrabbleBoard, player, playerHand);
+		this.setRight(bestMoves);
+		BorderPane.setMargin(bestMoves, new Insets(30, 30, 30, 30));
+		
+		update();
+	}
+	
+	private VBox buildLeftPanel()
+	{
 		Button newGameButton = new Button("Reset game");
 		newGameButton.setOnAction((event) -> {
 			board = initGame();
@@ -54,13 +67,12 @@ public class ScrabbleView extends BorderPane
 			update();
 		});
 		
-		this.setLeft(newGameButton);
+		VBox left = new VBox();
+		scoreboard = new ScoreboardContainer(bot, player);
 		
-		bestMoves = new BestMoves(this, scrabbleBoard, player, playerHand);
-		this.setRight(bestMoves);
-		BorderPane.setMargin(bestMoves, new Insets(30, 30, 30, 30));
+		left.getChildren().addAll(newGameButton, scoreboard);
 		
-		update();
+		return left;
 	}
 	
 	private VBox buildCenterPanel()
@@ -145,6 +157,8 @@ public class ScrabbleView extends BorderPane
 			isPlayersTurn = true;
 			update();
 		}
+		
+		scoreboard.updateScoreLabels();
 	}
 	
 	public Board initGame()
@@ -152,8 +166,8 @@ public class ScrabbleView extends BorderPane
 		Board board = new Board();
 		
 		TileBag bag = new TileBag();
-		bot = new Player(7, bag, board);
-		player = new Player(7, bag, board);
+		bot = new Player("Bot", 7, bag, board);
+		player = new Player("You", 7, bag, board);
 		
 		isPlayersTurn = userGoesFirst();
 		if (!isPlayersTurn)

@@ -124,6 +124,10 @@ public class ScrabbleBoard extends GridPane
             }
         }
         
+        // Add points to player's total
+        int points = board.computePoints(board.getBoard(), newWords, inProgressTiles.size() == 7);
+        player.points += points;
+        
         // Update board
         for (ScrabbleTileParent tileParent : inProgressTiles)
         {
@@ -131,16 +135,11 @@ public class ScrabbleBoard extends GridPane
         	
         	board.getBoard()[tile.x][tile.y].setValue(tile.containedChar);
         }
-        
         board.currentWords = allNewWords;
-        
-        // Add points to player's total
-        int points = board.computePoints(board.getBoard(), newWords);
-        player.points += points;
 
         player.refreshHand();
 
-        board.displayBoard();
+//        board.displayBoard();
         
         // Reset vars
         hoveredTile = null;

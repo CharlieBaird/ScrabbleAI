@@ -11,12 +11,14 @@ public class Player {
     // in index 6.
     public Character[] hand;
 
+    public String name;
     public int points;
     private TileBag bag;
     private Board board;
 
-    public Player (int tileCount, TileBag tileBag, Board matrix)
+    public Player (String playerName, int tileCount, TileBag tileBag, Board matrix)
     {
+    	name = playerName;
         hand = new Character[tileCount];
         bag = tileBag;
         board = matrix;
@@ -101,14 +103,20 @@ public class Player {
 
         refreshHand();
 
-        board.displayBoard();
-        System.out.println(play);
-        System.out.println("New hand: " + Arrays.toString(hand));
+//        board.displayBoard();
+//        System.out.println(play);
+//        System.out.println("New hand: " + Arrays.toString(hand));
+//        System.out.println(points);
     }
     
     public Character[] getHand()
     {
     	return this.hand;
+    }
+    
+    public int getPoints()
+    {
+    	return this.points;
     }
 
 }

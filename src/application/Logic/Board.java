@@ -281,7 +281,7 @@ public class Board {
     			// Compute points
     			ArrayList<Word> newWords = new ArrayList<>();
     			newWords.add(new Word(row, col, false, word));
-    			int points = computePoints(board, newWords);
+    			int points = computePoints(board, newWords, (p.word.length() == 7));
     			
     			Play play = new Play(word, row, col, false, points);
     			allPlays.add(play);
@@ -553,7 +553,7 @@ public class Board {
 
         ArrayList<Word> newWords = getNewWords(allNewWords);
 
-        return computePoints(board, newWords);
+        return computePoints(board, newWords, changedChars.size() == 7);
     }
 
     // Compare new words to currentWords list
@@ -583,7 +583,7 @@ public class Board {
     }
 
     // Compute points of a given (already checked) word on a given board
-    public int computePoints(Tile[][] matrix, ArrayList<Word> newWords)
+    public int computePoints(Tile[][] matrix, ArrayList<Word> newWords, boolean usedAllLetters)
     {
         int total = 0;
 
@@ -641,7 +641,7 @@ public class Board {
             total += wordTotal;
         }
 
-        return total;
+        return total + (usedAllLetters ? 50 : 0);
     }
 
     private boolean tileChanged(Tile[][] tiles, int[] location, char c)
