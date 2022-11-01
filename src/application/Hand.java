@@ -21,13 +21,15 @@ public class Hand extends HBox
 	private Player player;
 	private ScrabblePointsComparator comparator;
 	private ScrabbleBoard scrabbleBoard;
+	private boolean hidden;
 	
-	public Hand(ScrabbleBoard scrabbleBoard, Player linkedPlayer)
+	public Hand(ScrabbleBoard scrabbleBoard, Player linkedPlayer, boolean hidden)
 	{
 		this.scrabbleBoard = scrabbleBoard;
 		this.comparator = new ScrabblePointsComparator();
 		this.setMinHeight(50);
 		this.player = linkedPlayer;
+		this.hidden = hidden;
 		this.setAlignment(Pos.CENTER);
 		this.setSpacing(5);
 	}
@@ -42,7 +44,7 @@ public class Hand extends HBox
 			
 			int points = comparator.map.getOrDefault((char) ((int) c + 32), 0);
 			
-			TileInHand tile = new TileInHand(scrabbleBoard, this, c, points);
+			TileInHand tile = new TileInHand(scrabbleBoard, this, c, points, hidden);
 			
 			this.getChildren().add(tile);
 		}
@@ -68,10 +70,11 @@ class TileInHand extends Pane
 	private ScrabbleBoard scrabbleBoard;
 	private Hand hand;
 	public char character;
+	private boolean hidden;
 	
 	private ArrayList<Point> possiblePoints;
 	
-	public TileInHand(ScrabbleBoard scrabbleBoard, Hand hand, Character c, int points)
+	public TileInHand(ScrabbleBoard scrabbleBoard, Hand hand, Character c, int points, boolean hidden)
 	{
 		this.scrabbleBoard = scrabbleBoard;
 		this.hand = hand;
@@ -83,15 +86,15 @@ class TileInHand extends Pane
 		this.setOpacity(0.7);
 		resetStyle();
 		
-		// Add main character laben in center
-		Label label = new Label(String.valueOf(c));
+		// Add main character label in center
+		Label label = new Label(hidden ? "?" : String.valueOf(c));
 		label.setFont(new Font("Arial", 26));
 		label.setTextAlignment(TextAlignment.CENTER);
 		label.layoutXProperty().bind(this.widthProperty().subtract(label.widthProperty()).divide(2));
 		label.layoutYProperty().bind(this.heightProperty().subtract(label.heightProperty()).divide(2));
 		
-		// Add supertext points label in top right
-		Label pointsLabel = new Label(String.valueOf(points));
+		// Add super text points label in top right
+		Label pointsLabel = new Label(hidden ? "" : String.valueOf(points));
 		pointsLabel.setFont(new Font("Arial", 12));
 		pointsLabel.setTextAlignment(TextAlignment.RIGHT);
 		pointsLabel.setTranslateX(points == 10 ? 24 : 30);

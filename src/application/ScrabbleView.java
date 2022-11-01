@@ -30,7 +30,8 @@ public class ScrabbleView extends BorderPane
 	private Hand botHand;
 	public Hand playerHand;
 	
-	public ScoreboardContainer scoreboard;
+	public Scoreboard userScoreboard;
+	public Scoreboard botScoreboard;
 	
 	boolean isPlayersTurn = false;
 	
@@ -45,7 +46,6 @@ public class ScrabbleView extends BorderPane
 		
 		// Build center vBox
 		this.setCenter(buildCenterPanel());
-		this.setLeft(buildLeftPanel());
 		this.setRight(buildRightPanel());
 		
 		update();
@@ -58,22 +58,22 @@ public class ScrabbleView extends BorderPane
 		return bestMoves;
 	}
 	
-	private VBox buildLeftPanel()
-	{
-		Button newGameButton = new Button("Reset game");
-		newGameButton.setOnAction((event) -> {
-			init();
-		});
-		
-		VBox left = new VBox();
-		scoreboard = new ScoreboardContainer(bot, player);
-		
-		left.getChildren().addAll(newGameButton, scoreboard);
-		
-		left.setSpacing(24);
-		
-		return left;
-	}
+//	private VBox buildLeftPanel()
+//	{
+//		Button newGameButton = new Button("Reset game");
+//		newGameButton.setOnAction((event) -> {
+//			init();
+//		});
+//		
+//		VBox left = new VBox();
+//		scoreboard = new ScoreboardContainer(bot, player);
+//		
+//		left.getChildren().addAll(newGameButton, scoreboard);
+//		
+//		left.setSpacing(24);
+//		
+//		return left;
+//	}
 	
 	private VBox buildCenterPanel()
 	{
@@ -82,12 +82,22 @@ public class ScrabbleView extends BorderPane
 		scrabbleBoard = new ScrabbleBoard(this, board);
 		scrabbleBoard.setMinSize(705, 705);
 		
-		botHand = new Hand(scrabbleBoard, bot);
-		centerPane.getChildren().add(botHand);
+		userScoreboard = new Scoreboard(player);
+		userScoreboard.setAlignment(Pos.CENTER);
+		botHand = new Hand(scrabbleBoard, bot, true);
+		botScoreboard = new Scoreboard(bot);
+		botScoreboard.setAlignment(Pos.CENTER);
+		
+		BorderPane topPanel = new BorderPane();
+		topPanel.setLeft(userScoreboard);
+		topPanel.setCenter(botHand);
+		topPanel.setRight(botScoreboard);
+		
+		centerPane.getChildren().add(topPanel);
 		
 		centerPane.getChildren().add(scrabbleBoard);
 		
-		playerHand = new Hand(scrabbleBoard, player);
+		playerHand = new Hand(scrabbleBoard, player, false);
 		
 		Button submitWordButton = new Button();
 		submitWordButton.setOnAction((event) -> {
@@ -173,7 +183,8 @@ public class ScrabbleView extends BorderPane
 			update();
 		}
 		
-		scoreboard.updateScoreLabels();
+		botScoreboard.updateScoreLabel();
+		userScoreboard.updateScoreLabel();
 	}
 	
 	public Board initGame()
