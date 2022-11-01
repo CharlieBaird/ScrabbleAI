@@ -8,6 +8,7 @@ import application.Logic.ScrabblePointsComparator;
 import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
@@ -46,13 +47,27 @@ public class Hand extends HBox
 			this.getChildren().add(tile);
 		}
 	}
+	
+	public void hideChar(char c)
+	{
+		for (int i=0; i<this.getChildren().size(); i++)
+		{
+			TileInHand tile = (TileInHand) this.getChildren().get(i);
+			
+			if (tile.character == c)
+			{
+				this.getChildren().remove(tile);
+				break;
+			}
+		}
+	}
 }
 
 class TileInHand extends Pane
 {
 	private ScrabbleBoard scrabbleBoard;
 	private Hand hand;
-	private char character;
+	public char character;
 	
 	private ArrayList<Point> possiblePoints;
 	
@@ -120,7 +135,7 @@ class TileInHand extends Pane
 		this.getChildren().add(pointsLabel);
 	}
 	
-	private void play()
+	public void play()
 	{
 		// If returns true, successfully played tile
 		if (scrabbleBoard.tryPlayTile(possiblePoints, hand, this))

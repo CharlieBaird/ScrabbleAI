@@ -7,6 +7,7 @@ import java.util.Collections;
 
 import application.Logic.Board;
 import application.Logic.Bonus;
+import application.Logic.Play;
 import application.Logic.Player;
 import application.Logic.ScrabblePointsComparator;
 import application.Logic.Tile;
@@ -144,6 +145,7 @@ public class ScrabbleBoard extends GridPane
         // Reset vars
         hoveredTile = null;
         inProgressTiles.clear();
+        view.bestMoves.reset();
         
         view.isPlayersTurn = false;
         
@@ -152,6 +154,8 @@ public class ScrabbleBoard extends GridPane
 	
 	public void resetCurrentMove()
 	{
+		view.playerHand.update();
+		
 		hoveredTile = null;
 		inProgressTiles.clear();
 		
@@ -208,6 +212,65 @@ public class ScrabbleBoard extends GridPane
 		
 		return false;
 	}
+	
+	public void previewPlay(Play play, Hand usedHand)
+	{
+		resetCurrentMove();
+		
+		ArrayList<Character> usedChars = playWord(play);
+		
+		for (int i=0; i<15; i++)
+		{
+			for (int j=0; j<15; j++)
+			{
+				tiles[i][j].child.update(tiles[i][j].child.containedChar);
+			}
+		}
+		
+		for (char c : usedChars)
+		{
+			usedHand.hideChar(c);
+		}
+	}
+	
+	// Puts word on board, returns used characters
+    public ArrayList<Character> playWord(Play play)
+    {
+        ArrayList<Character> usedChars = new ArrayList<>();
+
+        if (!play.isVertical())
+        {
+            for (int i = 0; i < play.getWord().length(); i++)
+            {
+                int x = play.getxOrigin();
+                int y = play.getyOrigin() + i;
+                if (tiles[x][y].child.containedChar != play.getWord().charAt(i))
+                {
+                	inProgressTiles.add(tiles[x][y]);
+                	tiles[x][y].child.containedChar = play.getWord().charAt(i);
+                    usedChars.add(play.getWord().charAt(i));
+                }
+
+            }
+        }
+
+        else
+        {
+            for (int i = 0; i < play.getWord().length(); i++)
+            {
+                int x = play.getxOrigin() + i;
+                int y = play.getyOrigin();
+                if (tiles[x][y].child.containedChar != play.getWord().charAt(i))
+                {
+                	inProgressTiles.add(tiles[x][y]);
+                	tiles[x][y].child.containedChar = play.getWord().charAt(i);
+                    usedChars.add(play.getWord().charAt(i));
+                }
+            }
+        }
+
+        return usedChars;
+    }
 	
 	public ArrayList<Point> paintPossibleTiles()
 	{
@@ -322,6 +385,10 @@ public class ScrabbleBoard extends GridPane
 				{
 					tiles[i][j].child.update(matrix[i][j]);
 				}
+				else
+				{
+					tiles[i][j].child.reinit();
+				}
 			}
 		}
 	}
@@ -375,6 +442,7 @@ class ScrabbleTile extends Pane
 	Label label;
 	Label pointsLabel;
 	ScrabblePointsComparator comparator;
+	Tile tile;
 	
 	int x;
 	int y;
@@ -387,6 +455,8 @@ class ScrabbleTile extends Pane
 		
 		this.x = x;
 		this.y = y;
+		
+		this.tile = tile;
 		
 		init(tile);
 	}
@@ -434,6 +504,12 @@ class ScrabbleTile extends Pane
 		this.getChildren().add(pointsLabel);
 	}
 	
+	public void reinit()
+	{
+		this.getChildren().clear();
+		init(tile);
+	}
+	
 	public String getStyleString(String backgroundColor)
 	{
 		return "-fx-border-width: 24px;" +
@@ -443,18 +519,19 @@ class ScrabbleTile extends Pane
 
 	public void update(Tile tile)
 	{
-		if (tile.getValue() != '_')
+		char c = tile.getValue();
+		if (c != '_')
 		{
 			this.setStyle(getStyleString("#E79C64"));
 			
-			containedChar = tile.getValue();
-			label.setText(String.valueOf(tile.getValue()));
+			containedChar = c;
+			label.setText(String.valueOf(c));
 			label.setFont(new Font("Arial", 26));
 			label.setTextAlignment(TextAlignment.CENTER);
 			label.layoutXProperty().bind(this.widthProperty().subtract(label.widthProperty()).divide(2));
 			label.layoutYProperty().bind(this.heightProperty().subtract(label.heightProperty()).divide(2));
 			
-			int points = comparator.map.getOrDefault((char) ((int) tile.getValue() + 32), 0);
+			int points = comparator.map.getOrDefault((char) ((int) c + 32), 0);
 			pointsLabel.setText(String.valueOf(points));
 			pointsLabel.setFont(new Font("Arial", 12));
 			pointsLabel.setTextAlignment(TextAlignment.RIGHT);
@@ -467,6 +544,35 @@ class ScrabbleTile extends Pane
 			this.getChildren().clear();
 			this.containedChar = '_';
 			init(tile);
+		}
+	}
+	
+	public void update(char c)
+	{
+		if (c != '_')
+		{
+			this.setStyle(getStyleString("#E79C64"));
+			
+			containedChar = c;
+			label.setText(String.valueOf(c));
+			label.setFont(new Font("Arial", 26));
+			label.setTextAlignment(TextAlignment.CENTER);
+			label.layoutXProperty().bind(this.widthProperty().subtract(label.widthProperty()).divide(2));
+			label.layoutYProperty().bind(this.heightProperty().subtract(label.heightProperty()).divide(2));
+			
+			int points = comparator.map.getOrDefault((char) ((int) c + 32), 0);
+			pointsLabel.setText(String.valueOf(points));
+			pointsLabel.setFont(new Font("Arial", 12));
+			pointsLabel.setTextAlignment(TextAlignment.RIGHT);
+			pointsLabel.setTranslateX(points == 10 ? 30 : 36);
+		}
+		
+		// Otherwise reset to original state
+		else
+		{
+			this.getChildren().clear();
+			this.containedChar = '_';
+			reinit();
 		}
 	}
 }

@@ -4,6 +4,7 @@ import application.Logic.Board;
 import application.Logic.Play;
 import application.Logic.Player;
 import application.Logic.TileBag;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
@@ -19,14 +20,15 @@ import javafx.scene.layout.VBox;
 
 public class ScrabbleView extends BorderPane
 {
-	private ScrabbleBoard scrabbleBoard;
+	public ScrabbleBoard scrabbleBoard;
+	public BestMoves bestMoves;
 	private Board board;
 	
 	private Player bot;
 	private Player player;
 	
 	private Hand botHand;
-	private Hand playerHand;
+	public Hand playerHand;
 	
 	boolean isPlayersTurn = false;
 	
@@ -54,7 +56,9 @@ public class ScrabbleView extends BorderPane
 		
 		this.setLeft(newGameButton);
 		
-		this.setRight(buildRightPanel());
+		bestMoves = new BestMoves(this, scrabbleBoard, player, playerHand);
+		this.setRight(bestMoves);
+		BorderPane.setMargin(bestMoves, new Insets(30, 30, 30, 30));
 		
 		update();
 	}
@@ -127,22 +131,6 @@ public class ScrabbleView extends BorderPane
 		centerPane.getChildren().add(bottomBox);
 		
 		return centerPane;
-	}
-	
-	private VBox buildRightPanel()
-	{
-		VBox rightPane = new VBox();
-		
-		Button giveBestMovesButton = new Button("Find my best move");
-		giveBestMovesButton.setOnAction((event) -> {
-			if (!isPlayersTurn) return;
-			Play play = player.getBestPlay();
-			System.out.println(play);
-		});
-		
-		rightPane.getChildren().add(giveBestMovesButton);
-		
-		return rightPane;
 	}
 	
 	private void update()

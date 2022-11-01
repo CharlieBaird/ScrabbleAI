@@ -36,7 +36,7 @@ public class Player {
         }
     }
     
-    public Play getBestPlay()
+    public ArrayList<Play> getPlays()
     {
 		ArrayList<Play> plays;
     	
@@ -52,6 +52,13 @@ public class Player {
     		// Get best overall play
             plays = board.getPlays(hand);
     	}
+    	
+    	return plays;
+    }
+    
+    public Play getBestPlay()
+    {
+		ArrayList<Play> plays = getPlays();
     	
     	if (plays == null || plays.isEmpty()) return null;
 
