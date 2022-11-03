@@ -56,8 +56,11 @@ public class BestMoves extends VBox
 				movesBox.getChildren().add(new MoveView(board, play, hand, this));
 			}
 		});
+		giveBestMovesButton.setMinSize(200, 40);
+		giveBestMovesButton.setStyle("-fx-font-size: 16;");
+
 		
-		this.setSpacing(20);
+		this.setSpacing(5);
 		movesBox.setSpacing(20);
 		
 		this.getChildren().add(giveBestMovesButton);
@@ -112,7 +115,7 @@ class MoveView extends BorderPane
 		
 		this.setStyle(
 				"-fx-border-width: 20px;" +
-                "-fx-border-radius: 5px;" + 
+                "-fx-border-radius: 2px;" + 
                 "-fx-border-color: #DDDDDD;");
 		
 		this.setCursor(Cursor.HAND);
@@ -182,7 +185,7 @@ class MoveView extends BorderPane
 	{
 		this.setStyle( 
 				"-fx-border-width: 20px;" +
-                "-fx-border-radius: 5px;" + 
+                "-fx-border-radius: 2px;" + 
                 "-fx-border-color: #DDDDDD;");
 	}
 	
@@ -190,7 +193,7 @@ class MoveView extends BorderPane
 	{
 		this.setStyle( 
                 "-fx-border-width: 20px;" +
-                "-fx-border-radius: 5px;" + 
+                "-fx-border-radius: 2px;" + 
                 "-fx-border-color: #C0C0C0;");
 	}
 }

@@ -10,7 +10,7 @@ public class Main extends Application {
 	public void start(Stage primaryStage) {
 		try {
 			BorderPane root = new BorderPane();
-			Scene scene = new Scene(root,1280,805);
+			Scene scene = new Scene(root,926,805);
 			primaryStage.setScene(scene);
 			primaryStage.show();
 			

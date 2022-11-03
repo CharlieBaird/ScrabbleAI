@@ -47,6 +47,7 @@ public class ScrabbleView extends BorderPane
 		// Build center vBox
 		this.setCenter(buildCenterPanel());
 		this.setRight(buildRightPanel());
+		this.setLeft(buildLeftPanel());
 		
 		update();
 	}
@@ -54,26 +55,18 @@ public class ScrabbleView extends BorderPane
 	private Pane buildRightPanel()
 	{
 		bestMoves = new BestMoves(this, scrabbleBoard, player, playerHand);
-		BorderPane.setMargin(bestMoves, new Insets(30, 30, 30, 30));
+		BorderPane.setMargin(bestMoves, new Insets(5, 0, 0, 5));
 		return bestMoves;
 	}
 	
-//	private VBox buildLeftPanel()
-//	{
-//		Button newGameButton = new Button("Reset game");
-//		newGameButton.setOnAction((event) -> {
-//			init();
-//		});
-//		
-//		VBox left = new VBox();
-//		scoreboard = new ScoreboardContainer(bot, player);
-//		
-//		left.getChildren().addAll(newGameButton, scoreboard);
-//		
-//		left.setSpacing(24);
-//		
-//		return left;
-//	}
+	private HBox buildLeftPanel()
+	{
+		HBox hbox = new HBox();
+		Pane pane = new Pane();
+		pane.setMinSize(5, 100);
+		hbox.getChildren().add(pane);
+		return hbox;
+	}
 	
 	private VBox buildCenterPanel()
 	{
@@ -150,6 +143,17 @@ public class ScrabbleView extends BorderPane
 		trashHandButton.setGraphic(trashImgView);
 		trashHandButton.setTooltip(new Tooltip("Trash current hand, skip turn"));
 		
+		Button newGameButton = new Button();
+		newGameButton.setOnAction((event) -> {
+			init();
+		});
+		Image resetImage = new Image("https://www.shareicon.net/data/512x512/2016/03/02/727533_button_512x512.png");
+		ImageView resetImageView = new ImageView(resetImage);
+		resetImageView.setFitHeight(32);
+		resetImageView.setFitWidth(32);
+		newGameButton.setGraphic(resetImageView);
+		newGameButton.setTooltip(new Tooltip("Reset game"));
+		
 		BorderPane bottomBox = new BorderPane();
 		bottomBox.setCenter(playerHand);
 		
@@ -161,9 +165,12 @@ public class ScrabbleView extends BorderPane
 		buttons.getChildren().add(submitWordButton);
 		bottomBox.setRight(buttons);
 		
+		HBox leftButtons = new HBox();
+		leftButtons.setAlignment(Pos.CENTER);
 		Pane emptyPane = new Pane();
-		emptyPane.setMinSize(170, 10);
-		bottomBox.setLeft(emptyPane);
+		emptyPane.setMinSize(122, 10);
+		leftButtons.getChildren().addAll(newGameButton, emptyPane);
+		bottomBox.setLeft(leftButtons);
 		
 		centerPane.getChildren().add(bottomBox);
 		
