@@ -73,6 +73,17 @@ public class BestMoves extends VBox
 		movesBox.getChildren().clear();
 		selected = null;
 	}
+	
+	public void unhighlightAll()
+	{
+		if (selected != null)
+		{
+			selected.resetStyle();
+			selected = null;
+		}
+		
+		
+	}
 }
 
 class MoveView extends BorderPane
@@ -181,7 +192,7 @@ class MoveView extends BorderPane
 		}
 	}
 	
-	private void resetStyle()
+	public void resetStyle()
 	{
 		this.setStyle( 
 				"-fx-border-width: 20px;" +

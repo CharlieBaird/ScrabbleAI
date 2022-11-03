@@ -119,6 +119,7 @@ public class ScrabbleView extends BorderPane
 		resetWordButton.setOnAction((event) -> {
 			if (!isPlayersTurn) return;
 			scrabbleBoard.resetCurrentMove();
+			bestMoves.unhighlightAll();
 			update();
 		});
 		Image resetImg = new Image("https://cdn-icons-png.flaticon.com/512/60/60690.png");

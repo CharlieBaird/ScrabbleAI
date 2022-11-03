@@ -401,6 +401,7 @@ class ScrabbleTileParent extends VBox implements Comparable<ScrabbleTileParent>
 	{
 		child = new ScrabbleTile(tile, comparator, x, y);
 		this.setMinSize(47, 47);
+		this.setMaxSize(47, 47);
 		this.setBackground(Background.EMPTY);
 		this.setBorder(new Border(new BorderStroke(Color.TRANSPARENT, 
 	            BorderStrokeStyle.SOLID, new CornerRadii(5), BorderWidths.DEFAULT)));
