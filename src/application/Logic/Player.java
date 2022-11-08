@@ -16,6 +16,7 @@ public class Player {
     public int points;
     private TileBag bag;
     private Board board;
+    private ScrabblePointsComparator comp;
 
     public Player (String playerName, int tileCount, TileBag tileBag, Board matrix)
     {
@@ -23,6 +24,7 @@ public class Player {
         hand = new Character[tileCount];
         bag = tileBag;
         board = matrix;
+        comp = new ScrabblePointsComparator();
         refreshHand();
     }
     
@@ -44,7 +46,29 @@ public class Player {
     	
     	refreshHand();
     }
-
+    
+    public boolean hasEmptyHand()
+    {
+    	for (Character c : hand)
+    	{
+    		if (c != null) return false;
+    	}
+    	
+    	return true;
+    }
+    
+    public int pointsInHand()
+    {
+    	int total = 0;
+    	for (Character c : hand)
+    	{
+    		if (c != null)
+    			total += comp.map.get((char) (c.charValue() + 32));
+    	}
+    	
+    	return total;
+    }
+    
     // To be called at the start, or when player plays a word on the board.
     // If possible, pulls a new letter out of the bag into the user's hand.
     public void refreshHand()

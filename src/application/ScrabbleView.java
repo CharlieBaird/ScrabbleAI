@@ -4,6 +4,7 @@ import application.Logic.Board;
 import application.Logic.Play;
 import application.Logic.Player;
 import application.Logic.TileBag;
+import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Alert;
@@ -18,92 +19,84 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 
-public class ScrabbleView extends BorderPane
-{
+public class ScrabbleView extends BorderPane {
 	public ScrabbleBoard scrabbleBoard;
 	public BestMoves bestMoves;
 	private Board board;
-	
+
 	private Player bot;
 	private Player player;
-	
+
 	private Hand botHand;
 	public Hand playerHand;
-	
+
 	public Scoreboard userScoreboard;
 	public Scoreboard botScoreboard;
-	
+
 	boolean isPlayersTurn = false;
-	
-	public ScrabbleView()
-	{
+
+	public ScrabbleView() {
 		init();
 	}
-	
-	private void init()
-	{
+
+	private void init() {
 		board = initGame();
-		
+
 		// Build center vBox
 		this.setCenter(buildCenterPanel());
 		this.setRight(buildRightPanel());
 		this.setLeft(buildLeftPanel());
-		
+
 		update();
 	}
-	
-	private Pane buildRightPanel()
-	{
+
+	private Pane buildRightPanel() {
 		bestMoves = new BestMoves(this, scrabbleBoard, player, playerHand);
 		BorderPane.setMargin(bestMoves, new Insets(5, 0, 0, 5));
 		return bestMoves;
 	}
-	
-	private HBox buildLeftPanel()
-	{
+
+	private HBox buildLeftPanel() {
 		HBox hbox = new HBox();
 		Pane pane = new Pane();
 		pane.setMinSize(5, 100);
 		hbox.getChildren().add(pane);
 		return hbox;
 	}
-	
-	private VBox buildCenterPanel()
-	{
+
+	private VBox buildCenterPanel() {
 		VBox centerPane = new VBox();
-		
+
 		scrabbleBoard = new ScrabbleBoard(this, board);
 		scrabbleBoard.setMinSize(705, 705);
-		
+
 		userScoreboard = new Scoreboard(player);
 		userScoreboard.setAlignment(Pos.CENTER);
 		botHand = new Hand(scrabbleBoard, bot, true);
 		botScoreboard = new Scoreboard(bot);
 		botScoreboard.setAlignment(Pos.CENTER);
-		
+
 		BorderPane topPanel = new BorderPane();
 		topPanel.setLeft(userScoreboard);
 		topPanel.setCenter(botHand);
 		topPanel.setRight(botScoreboard);
-		
+
 		centerPane.getChildren().add(topPanel);
-		
+
 		centerPane.getChildren().add(scrabbleBoard);
-		
+
 		playerHand = new Hand(scrabbleBoard, player, false);
-		
+
 		Button submitWordButton = new Button();
 		submitWordButton.setOnAction((event) -> {
-			if (!isPlayersTurn) return;
-			
+			if (!isPlayersTurn)
+				return;
+
 			int points = scrabbleBoard.submitWord(player);
-			if (points == 0)
-			{
+			if (points == 0) {
 				scrabbleBoard.resetCurrentMove();
 				update();
-			}
-			else
-			{
+			} else {
 				isPlayersTurn = false;
 				update();
 			}
@@ -114,10 +107,11 @@ public class ScrabbleView extends BorderPane
 		submitImgView.setFitWidth(32);
 		submitWordButton.setGraphic(submitImgView);
 		submitWordButton.setTooltip(new Tooltip("Submit current word"));
-		
+
 		Button resetWordButton = new Button();
 		resetWordButton.setOnAction((event) -> {
-			if (!isPlayersTurn) return;
+			if (!isPlayersTurn)
+				return;
 			scrabbleBoard.resetCurrentMove();
 			bestMoves.unhighlightAll();
 			update();
@@ -128,10 +122,11 @@ public class ScrabbleView extends BorderPane
 		resetImgView.setFitWidth(32);
 		resetWordButton.setGraphic(resetImgView);
 		resetWordButton.setTooltip(new Tooltip("Reset current word"));
-		
+
 		Button trashHandButton = new Button();
 		trashHandButton.setOnAction((event) -> {
-			if (!isPlayersTurn) return;
+			if (!isPlayersTurn)
+				return;
 			player.trashHand();
 			update();
 			isPlayersTurn = false;
@@ -143,7 +138,7 @@ public class ScrabbleView extends BorderPane
 		trashImgView.setFitWidth(32);
 		trashHandButton.setGraphic(trashImgView);
 		trashHandButton.setTooltip(new Tooltip("Trash current hand, skip turn"));
-		
+
 		Button newGameButton = new Button();
 		newGameButton.setOnAction((event) -> {
 			init();
@@ -154,10 +149,10 @@ public class ScrabbleView extends BorderPane
 		resetImageView.setFitWidth(32);
 		newGameButton.setGraphic(resetImageView);
 		newGameButton.setTooltip(new Tooltip("Reset game"));
-		
+
 		BorderPane bottomBox = new BorderPane();
 		bottomBox.setCenter(playerHand);
-		
+
 		HBox buttons = new HBox();
 		buttons.setAlignment(Pos.CENTER);
 		buttons.setSpacing(10);
@@ -165,73 +160,121 @@ public class ScrabbleView extends BorderPane
 		buttons.getChildren().add(resetWordButton);
 		buttons.getChildren().add(submitWordButton);
 		bottomBox.setRight(buttons);
-		
+
 		HBox leftButtons = new HBox();
 		leftButtons.setAlignment(Pos.CENTER);
 		Pane emptyPane = new Pane();
 		emptyPane.setMinSize(122, 10);
 		leftButtons.getChildren().addAll(newGameButton, emptyPane);
 		bottomBox.setLeft(leftButtons);
-		
+
 		centerPane.getChildren().add(bottomBox);
-		
+
 		return centerPane;
 	}
-	
-	private void update()
+
+	private void gameOver(boolean playerWentOutFirst) {
+		if (playerWentOutFirst) {
+			player.points += bot.pointsInHand();
+			bot.points -= bot.pointsInHand();
+		}
+
+		else {
+			bot.points += player.pointsInHand();
+			player.points -= player.pointsInHand();
+		}
+
+		botScoreboard.updateScoreLabel();
+		userScoreboard.updateScoreLabel();
+
+		if (playAgain())
+		{
+			initGame();
+		}
+	}
+
+	boolean playAgain = false;
+	private boolean playAgain()
 	{
+		ButtonType yesButton = new ButtonType("Yes", ButtonData.YES);
+		ButtonType noButton = new ButtonType("No", ButtonData.NO);
+		Alert alert = new Alert(Alert.AlertType.NONE, "Would you like to play again?", yesButton, noButton);
+		alert.setTitle("Game over!");
+		alert.showAndWait().ifPresent(type -> {
+			if (type == yesButton) {
+				playAgain = true;
+			} else if (type == noButton) {
+				playAgain = false;
+			} else {
+				playAgain = false;
+			}
+		});
+
+		return playAgain;
+	}
+
+	private void update() {
 		scrabbleBoard.update(board);
 		botHand.update();
 		playerHand.update();
-		
-		if (!isPlayersTurn)
-		{
-			bot.playBestPlay();
-			isPlayersTurn = true;
-			update();
+
+		if (player.hasEmptyHand()) {
+			gameOver(true);
+			return;
+		} else if (bot.hasEmptyHand()) {
+			gameOver(false);
+			return;
 		}
-		
-		botScoreboard.updateScoreLabel();
-		userScoreboard.updateScoreLabel();
+
+		Platform.runLater(() -> {
+			if (!isPlayersTurn) {
+				bot.playBestPlay();
+				isPlayersTurn = true;
+				update();
+			}
+//			else {
+//				isPlayersTurn = false;
+//				update();
+//			}
+
+			botScoreboard.updateScoreLabel();
+			userScoreboard.updateScoreLabel();
+		});
 	}
-	
-	public Board initGame()
-	{
+
+	public Board initGame() {
 		Board board = new Board();
-		
+
 		TileBag bag = new TileBag();
 		bot = new Player("Bot", 7, bag, board);
 		player = new Player("You", 7, bag, board);
-		
+
 		isPlayersTurn = userGoesFirst();
-		if (!isPlayersTurn)
-		{
+		if (!isPlayersTurn) {
 			bot.playBestPlay();
 			isPlayersTurn = true;
 		}
-		
+
 		return board;
 	}
-	
+
 	private boolean userGoesFirst = false;
-	private boolean userGoesFirst()
-	{
+
+	private boolean userGoesFirst() {
 		ButtonType yesButton = new ButtonType("Yes", ButtonData.YES);
 		ButtonType noButton = new ButtonType("No", ButtonData.NO);
 		Alert alert = new Alert(Alert.AlertType.NONE, "Would you like to go first?", yesButton, noButton);
 		alert.setTitle("Scrabble");
 		alert.showAndWait().ifPresent(type -> {
-		        if (type == yesButton) {
-		        	userGoesFirst = true;
-		        }
-		        else if (type == noButton) {
-		        	userGoesFirst = false;
-		        }
-		        else {
-		        	userGoesFirst = false;
-		        }
+			if (type == yesButton) {
+				userGoesFirst = true;
+			} else if (type == noButton) {
+				userGoesFirst = false;
+			} else {
+				userGoesFirst = false;
+			}
 		});
-		
+
 		return userGoesFirst;
 	}
 }
