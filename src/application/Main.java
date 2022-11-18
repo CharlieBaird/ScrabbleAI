@@ -11,7 +11,7 @@ public class Main extends Application {
 		try {
 			BorderPane root = new BorderPane();
 			Scene scene = new Scene(root,926,805);
-//			Scene scene = new Scene(root,1000,805);
+			primaryStage.setTitle("Scrabble");
 			primaryStage.setScene(scene);
 			primaryStage.show();
 			
