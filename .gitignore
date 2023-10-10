@@ -1,1 +1,10 @@
 /bin/
+/.idea
+/.settings
+/.project
+/diagram.png
+/scrabble.png
+/temp/
+/temp/*
+/build.fxbuild
+/.classpath
